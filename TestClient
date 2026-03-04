@@ -13,3 +13,5 @@ def test_docs_exist():
     """Docs luôn tồn tại nên sẽ pass và cover được phần router"""
     response = client.get("/docs")
     assert response.status_code == 200
+    
+    
