@@ -55,8 +55,10 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:password@localhost:5432/test_db
         run: |
-          pytest --cov=app --cov-report=xml
-
+          # Chạy uvicorn ở background nếu bạn test qua requests (BASE_URL)
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 & 
+          sleep 5 # Đợi app lên
+          pytest --cov=app --cov-report=xml --cov-report=term-missing
   # Task 2.3: Build Stage
   build:
     needs: test
