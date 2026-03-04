@@ -51,6 +51,11 @@ jobs:
           pip install -r requirements.txt
           # Đảm bảo cài thêm các gói test nếu requirements.txt chưa có
           pip install pytest pytest-cov "httpx<0.28.0" "starlette<0.37.0" pytest-asyncio
+      - name: Run Database Migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:password@localhost:5432/test_db
+        run: |
+          alembic upgrade head
       - name: Run Tests with Coverage
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:password@localhost:5432/test_db
