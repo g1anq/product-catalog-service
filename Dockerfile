@@ -1,12 +1,12 @@
 # Stage 1: Builder
-FROM python:3.13-slim as builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /build
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Thêm các thư viện cần thiết để biên dịch psycopg2 từ source
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
@@ -24,7 +24,7 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Cài đặt libpq5 (cần cho psycopg2) và curl (cần cho HEALTHCHECK)
+# Install runtime dependencies (libpq5 for asyncpg, curl for HEALTHCHECK)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     curl \
