@@ -66,16 +66,25 @@ jobs:
         run: |
           pytest --cov=app --cov-report=xml --cov-report=term-missing tests/
 
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@master
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=product-catalog-service
+            -Dsonar.sources=app
+            -Dsonar.tests=tests
+            -Dsonar.python.version=3.13
+            -Dsonar.python.coverage.reportPaths=coverage.xml
 
-      - name: SonarQube Quality Gate Check
-        uses: SonarSource/sonarqube-quality-gate-action@master
+      - name: SonarCloud Quality Gate Check
+        uses: SonarSource/sonarcloud-github-action@master
         timeout-minutes: 5
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # Task 2.3: Build & Push Docker Image
