@@ -67,7 +67,7 @@ jobs:
 
   # Task 2.3: Build & Push Docker Image
   build:
-    needs: sonarqube
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
