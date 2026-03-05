@@ -13,8 +13,8 @@ class UserCreate(UserBase):
     password: str = Field(
         ...,
         min_length=8,
-        max_length=100,
-        description="User password (min 8 characters)"
+        max_length=72,
+        description="User password (min 8 characters, max 72 bytes for bcrypt)"
     )
 
 
@@ -24,8 +24,8 @@ class UserUpdate(BaseModel):
     password: Optional[str] = Field(
         None,
         min_length=8,
-        max_length=100,
-        description="Updated password (min 8 characters)"
+        max_length=72,
+        description="Updated password (min 8 characters, max 72 bytes for bcrypt)"
     )
     is_active: Optional[bool] = Field(None, description="Account active status")
 

@@ -24,6 +24,5 @@ async def get_context(
 # Create GraphQL router with context
 graphql_router = GraphQLRouter(
     schema,
-    context_getter=get_context,
-    graphiql=True 
+    context_getter=get_context
 )

@@ -58,7 +58,14 @@ class TaskRepository(BaseRepository[Task]):
         # Add tags if provided
         if tag_ids:
             await self.add_tags(task.id, owner_id, tag_ids)
-            await self.db.refresh(task)
+        
+        # Fetch task with eager-loaded tags
+        result = await self.db.execute(
+            select(Task)
+            .options(selectinload(Task.tags))
+            .where(Task.id == task.id)
+        )
+        task = result.scalar_one()
         
         return task
 

@@ -55,6 +55,27 @@ class TestProductCatalogAPI:
             TestProductCatalogAPI.tag_id = response.json()["id"]
 
     def test_create_task(self):
+        # Ensure we have a token - register and login if needed
+        if not TestProductCatalogAPI.access_token:
+            # Register user if not exists
+            client.post(
+                "/api/users/register",
+                json={
+                    "email": "testuser@example.com",
+                    "password": "securepassword123"
+                }
+            )
+            # Login to get token
+            response = client.post(
+                "/api/auth/token",
+                data={
+                    "username": "testuser@example.com",
+                    "password": "securepassword123"
+                }
+            )
+            assert response.status_code == 200, f"Login failed: {response.json()}"
+            TestProductCatalogAPI.access_token = response.json()["access_token"]
+        
         headers = {"Authorization": f"Bearer {TestProductCatalogAPI.access_token}"}
         response = client.post(
             "/api/tasks",
@@ -66,7 +87,7 @@ class TestProductCatalogAPI:
                 "tag_ids": [TestProductCatalogAPI.tag_id] if TestProductCatalogAPI.tag_id else []
             }
         )
-        assert response.status_code == 201
+        assert response.status_code == 201, f"Task creation failed: {response.json()}"
         TestProductCatalogAPI.task_id = response.json()["id"]
 
     def test_unauthorized_access(self):

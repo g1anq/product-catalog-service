@@ -55,6 +55,25 @@ class TestGraphQLFlow:
             assert data["data"]["createTag"]["name"] == "graphql-test-tag"
 
     def test_create_task_mutation(self):
+        # Ensure we have a token - register and login if needed
+        if not TestGraphQLFlow.access_token:
+            # Register user if not exists
+            client.post(
+                "/api/users/register",
+                json={
+                    "email": "testuser@example.com",
+                    "password": "securepassword123"
+                }
+            )
+            # Login to get token
+            response = client.post(
+                "/api/auth/token",
+                data={"username": "testuser@example.com", "password": "securepassword123"},
+                headers={"Content-Type": "application/x-www-form-urlencoded"}
+            )
+            assert response.status_code == 200, f"Login failed: {response.json()}"
+            TestGraphQLFlow.access_token = response.json()["access_token"]
+        
         query = """
         mutation CreateTask($input: CreateTaskInput!) {
           createTask(input: $input) {
@@ -75,7 +94,7 @@ class TestGraphQLFlow:
         headers = {"Authorization": f"Bearer {TestGraphQLFlow.access_token}"}
         response = client.post("/graphql", json={"query": query, "variables": variables}, headers=headers)
         
-        assert response.status_code == 200
+        assert response.status_code == 200, f"GraphQL error: {response.json()}"
         data = response.json()
         assert data["data"]["createTask"]["title"] == "GraphQL Task"
         TestGraphQLFlow.task_id = data["data"]["createTask"]["id"]
