@@ -2,32 +2,16 @@ import os
 import sys
 import asyncio
 import pytest
-import tempfile
 
 # Add the project root to the path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Create a temporary test database directory
-try:
-    _test_db_dir = tempfile.mkdtemp(prefix="pytest_db_")
-    _temp_db_path = os.path.join(_test_db_dir, "test.db")
-except Exception as e:
-    print(f"Warning: Could not create temp database directory: {e}")
-    _temp_db_path = "test.db"
-    _test_db_dir = None
+# Get temp paths from root conftest.py (set via environment variables)
+_temp_db_path = os.environ.get("_TEMP_DB_PATH")
+_test_db_dir = os.environ.get("_TEST_DB_DIR")
 
-# Set environment for testing - use temporary SQLite file database
-# This MUST be set before ANY app modules are imported
-os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{_temp_db_path.replace(chr(92), '/')}"
-
-
-def pytest_configure(config):
-    """Hook called before test collection - set up environment variables."""
-    # DATABASE_URL already set above, but this hook ensures it's set early
-    os.environ.setdefault("DATABASE_URL", f"sqlite+aiosqlite:///{_temp_db_path.replace(chr(92), '/')}")
-
-
-# Now import app AFTER setting DATABASE_URL
+# DATABASE_URL should already be set by root conftest.py before any imports
+# Import app modules AFTER sys.path and DATABASE_URL are set
 try:
     from app.core.database import engine, Base
 except Exception as e:
@@ -57,8 +41,14 @@ def setup_database():
             asyncio.run(engine.dispose())
             # Clean up the temporary database directory
             if _temp_db_path and _temp_db_path != "test.db" and os.path.exists(_temp_db_path):
-                os.remove(_temp_db_path)
+                try:
+                    os.remove(_temp_db_path)
+                except:
+                    pass
             if _test_db_dir and os.path.exists(_test_db_dir):
-                os.rmdir(_test_db_dir)
+                try:
+                    os.rmdir(_test_db_dir)
+                except:
+                    pass
         except Exception as e:
             print(f"Error during cleanup: {e}")
